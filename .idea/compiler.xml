@@ -2,8 +2,8 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <bytecodeTargetLevel>
-      <module name="PushApp.PushApp.main" target="11" />
-      <module name="PushApp.PushApp.test" target="11" />
+      <module name="PushApp.PushApp.main~1" target="11" />
+      <module name="PushApp.PushApp.test~1" target="11" />
     </bytecodeTargetLevel>
   </component>
 </project>
