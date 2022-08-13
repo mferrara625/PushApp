@@ -2,11 +2,10 @@ package com.mferrara.PushApp.models;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.mferrara.PushApp.auth.User;
 
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @JsonIdentityInfo(
@@ -20,22 +19,20 @@ public class Exercise {
     @GeneratedValue
     private Long id;
     private String name;
-    private Integer weight;
-    private Integer sets;
-    private Integer expectedReps;
-    private Integer restTime;
-    @ElementCollection(targetClass=Integer.class)
-    private List<Integer> actualReps;
+
+    @OneToMany
+    @JoinColumn(name = "exercise_id", referencedColumnName = "id")
+    @ElementCollection(targetClass=ExerciseSet.class)
+    private List<ExerciseSet> sets = new ArrayList<>();
+
+
 
     public Exercise() {
     }
 
-    public Exercise(String name, Integer weight, Integer sets, Integer expectedReps, Integer restTime) {
+    public Exercise(String name, List<ExerciseSet> sets) {
         this.name = name;
-        this.weight = weight;
         this.sets = sets;
-        this.expectedReps = expectedReps;
-        this.restTime = restTime;
     }
 
     public Long getId() {
@@ -54,43 +51,11 @@ public class Exercise {
         this.name = name;
     }
 
-    public Integer getWeight() {
-        return weight;
-    }
-
-    public void setWeight(Integer weight) {
-        this.weight = weight;
-    }
-
-    public Integer getSets() {
+    public List<ExerciseSet> getSets() {
         return sets;
     }
 
-    public void setSets(Integer sets) {
+    public void setSets(List<ExerciseSet> sets) {
         this.sets = sets;
-    }
-
-    public Integer getExpectedReps() {
-        return expectedReps;
-    }
-
-    public void setExpectedReps(Integer expectedReps) {
-        this.expectedReps = expectedReps;
-    }
-
-    public Integer getRestTime() {
-        return restTime;
-    }
-
-    public void setRestTime(Integer restTime) {
-        this.restTime = restTime;
-    }
-
-    public List<Integer> getActualReps() {
-        return actualReps;
-    }
-
-    public void setActualReps(List<Integer> actualReps) {
-        this.actualReps = actualReps;
     }
 }

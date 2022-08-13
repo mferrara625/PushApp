@@ -57,6 +57,7 @@ public class WebSecurityConfig{
                 .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and().authorizeRequests().antMatchers("/api/auth/**").permitAll()
                 .and().authorizeRequests().antMatchers("/api/test/**").permitAll()
+                .and().authorizeRequests().antMatchers("/api/workoutLog/auth/**").permitAll()
                 .anyRequest().authenticated();
 
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);

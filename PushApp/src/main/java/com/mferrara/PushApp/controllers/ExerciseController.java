@@ -1,16 +1,18 @@
 package com.mferrara.PushApp.controllers;
 
+import com.mferrara.PushApp.auth.User;
 import com.mferrara.PushApp.models.Exercise;
-import com.mferrara.PushApp.models.Profile;
-import com.mferrara.PushApp.models.StrengthExercise;
+import com.mferrara.PushApp.models.ExerciseSet;
 import com.mferrara.PushApp.repositories.ExerciseRepository;
+import com.mferrara.PushApp.repositories.ExerciseSetRepository;
+import com.mferrara.PushApp.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
+import java.util.*;
 
 @CrossOrigin
 @RestController
@@ -20,14 +22,35 @@ public class ExerciseController {
     @Autowired
     private ExerciseRepository repository;
 
-    Exercise ex = new Exercise();
-    public void Test(StrengthExercise ex){
+    @Autowired
+    private UserRepository userRepository;
 
-        ex.
+    @Autowired
+    private ExerciseSetRepository exerciseSetRepository;
+
+
+
+    @PostMapping("/create/{id}")
+    public ResponseEntity<Exercise> createExercise(@PathVariable Long id , @RequestBody Exercise newExercise){
+        User user = userRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        user.addToExercises(newExercise);
+        return new ResponseEntity<>(repository.save(newExercise), HttpStatus.CREATED);
     }
 
-    @PostMapping
-    public ResponseEntity<Exercise> createExercise(@RequestBody Exercise newExercise){
+    @PostMapping("/completed/{id}")
+    public ResponseEntity<Exercise> completeExercise(@PathVariable Long id , @RequestBody Long[] idArray){
+        User user = userRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        Exercise current = repository.findById(idArray[0]).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        List<ExerciseSet> sets = new ArrayList<>();
+        System.out.println("ARRAY TEST" + idArray);
+        for(int i = 1; i < idArray.length; i++){
+            System.out.println("LOOP TEST");
+            sets.add(exerciseSetRepository.findById(idArray[i]).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)));
+        }
+        System.out.println("SETCOMPLETIONTEST"+ sets);
+        Exercise newExercise = new Exercise(current.getName(), sets);
+        user.addToCompletedExercises(newExercise);
+
         return new ResponseEntity<>(repository.save(newExercise), HttpStatus.CREATED);
     }
 
@@ -36,10 +59,35 @@ public class ExerciseController {
         return new ResponseEntity<>(repository.findAll(), HttpStatus.OK);
     }
 
+    @GetMapping("/u/{id}")
+    public @ResponseBody ResponseEntity<Set<Exercise>> getAllUserCreatedExercises(@PathVariable Long id) {
+        User user = userRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        Set<Exercise> exercises = user.getExercises();
+        Map<String, Exercise> newSet = new HashMap<>();
+        Set<Exercise> result = new HashSet<>();
+
+        for(Exercise ex : exercises){
+            if(newSet.get(ex.getName()) == null){
+                newSet.put(ex.getName(), ex);
+                result.add(ex);
+            }
+        }
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    @GetMapping("/completed/{id}")
+    public @ResponseBody ResponseEntity<List<Exercise>> getAllUserCompletedExercises(@PathVariable Long id) {
+        User user = userRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        return new ResponseEntity<>(user.getCompletedExercises(), HttpStatus.OK);
+    }
+
+
     @GetMapping("/{id}")
-    public @ResponseBody ResponseEntity<Exercise> getProfileById(@PathVariable Long id) {
+    public @ResponseBody ResponseEntity<Exercise> getExerciseById(@PathVariable Long id) {
         return new ResponseEntity<>(repository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)), HttpStatus.OK);
     }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<Exercise> updateExercise(@PathVariable Long id, @RequestBody Exercise update){
@@ -49,25 +97,15 @@ public class ExerciseController {
             current.setName(update.getName());
         }
 
-        if(update.getWeight() != null){
-            current.setWeight(update.getWeight());
-        }
-
         if(update.getSets() != null){
             current.setSets(update.getSets());
         }
 
-        if(update.getExpectedReps() != null){
-            current.setExpectedReps(update.getExpectedReps());
+
+        if(update.getId() != null){
+            current.setId(update.getId());
         }
 
-        if(update.getRestTime() != null){
-            current.setRestTime(update.getRestTime());
-        }
-
-        if(update.getActualReps() != null){
-            current.setActualReps(update.getActualReps());
-        }
 
         return new ResponseEntity<>(repository.save(current), HttpStatus.ACCEPTED);
     }
