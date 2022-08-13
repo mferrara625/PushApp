@@ -64,22 +64,30 @@ public class ExerciseController {
         User user = userRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         Set<Exercise> exercises = user.getExercises();
         Map<String, Exercise> newSet = new HashMap<>();
-        Set<Exercise> result = new HashSet<>();
 
         for(Exercise ex : exercises){
             if(newSet.get(ex.getName()) == null){
                 newSet.put(ex.getName(), ex);
-                result.add(ex);
+            }
+            if(newSet.get(ex.getName()).getId() > ex.getId()){
+                newSet.put(ex.getName(), ex);
             }
         }
+        Set<Exercise> result = new HashSet<>(newSet.values());
+
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     @GetMapping("/completed/{id}")
     public @ResponseBody ResponseEntity<List<Exercise>> getAllUserCompletedExercises(@PathVariable Long id) {
         User user = userRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-
-        return new ResponseEntity<>(user.getCompletedExercises(), HttpStatus.OK);
+        List<Exercise> result = new ArrayList<>();
+        for(Exercise exercise : user.getCompletedExercises()){
+            if(exercise.getSets().size() > 0){
+                result.add(exercise);
+            }
+        }
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
 
