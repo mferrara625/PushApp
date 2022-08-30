@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @CrossOrigin
@@ -48,7 +50,9 @@ public class ExerciseController {
             sets.add(exerciseSetRepository.findById(idArray[i]).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)));
         }
         System.out.println("SETCOMPLETIONTEST"+ sets);
-        Exercise newExercise = new Exercise(current.getName(), sets);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd-yyyy HH:mm");
+        Exercise newExercise = new Exercise(current.getName(), sets, LocalDateTime.now().format(formatter));
+        System.out.println("?!?? TEST DATE TIME ##!# > " + LocalDateTime.now());
         user.addToCompletedExercises(newExercise);
 
         return new ResponseEntity<>(repository.save(newExercise), HttpStatus.CREATED);

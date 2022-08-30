@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.mferrara.PushApp.auth.User;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +20,7 @@ public class Exercise {
     @GeneratedValue
     private Long id;
     private String name;
+    private String dateTime;
 
     @OneToMany
     @JoinColumn(name = "exercise_id", referencedColumnName = "id")
@@ -30,9 +32,10 @@ public class Exercise {
     public Exercise() {
     }
 
-    public Exercise(String name, List<ExerciseSet> sets) {
+    public Exercise(String name, List<ExerciseSet> sets, String dateTime) {
         this.name = name;
         this.sets = sets;
+        this.dateTime = dateTime;
     }
 
     public Long getId() {
@@ -57,5 +60,13 @@ public class Exercise {
 
     public void setSets(List<ExerciseSet> sets) {
         this.sets = sets;
+    }
+
+    public String getDateTime() {
+        return dateTime;
+    }
+
+    public void setDateTime(String dateTime) {
+        this.dateTime = dateTime;
     }
 }
